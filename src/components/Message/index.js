@@ -1,71 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity,KeyboardAvoidingView, Image, FlatList, Platform, ScrollView } from 'react-native';
+import { connect } from 'react-redux';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity,KeyboardAvoidingView, Image, FlatList, Platform } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import InvertibleScrollView from 'react-native-invertible-scroll-view';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import dummy from 'assets/images/dummy.jpg';
 import MessageRender from './MessageRender';
+import { sendMessage } from '../../store/actions/chat';
 
 class Message extends Component {
   state={
-    active: true, 
+    active: true,
     message: '',
-    messages: [
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-      {
-        sender: 2,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-      {
-        sender: 2,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 2,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 2,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-
-      {
-        sender: 1,
-        msg: 'asamlsmal; aslmlam lm ms alsml ma s masmms kasm asm m mlas a sa '
-      },
-    ]
   }
 
   static navigationOptions = ({ navigation }) => {
@@ -73,13 +19,20 @@ class Message extends Component {
       header: null
     };
   };
+
+  sendIt = (id) => {
+    this.props.dispatch(sendMessage(id, this.state.message))
+    return this.setState({ message: '' });
+  }
   render() {
     const { navigation } = this.props;
     const name = navigation.getParam('name', 'Messages');
+    const chatDetail = navigation.getParam('chat', 'Messages');
+    const messages = this.props.chat.messages;
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' && 'padding'}>
           <View style={styles.row}>
-          <TouchableOpacity onPress={() => navigation.goBack()}><Icon name="chevron-left" size={25} color="#555" style={{ margin: 5}}/></TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Chats')}><Icon name="chevron-left" size={25} color="#555" style={{ margin: 5}}/></TouchableOpacity>
           <Image source={dummy} style={styles.image}/>
           <View>
             <Text style={{fontSize: 15, fontWeight: 'bold', padding: 5, textTransform: 'capitalize' }}>{name}</Text>
@@ -90,19 +43,27 @@ class Message extends Component {
           </View>
           </View>
           <View style={{flex: 1}}>
-            <ScrollView
+          <InvertibleScrollView
+            inverted
             style={styles.messages}
-            extraHeight={0}
             enableAutomaticScroll={true}
+            automaticallyAdjustContentInsets={false}
+            // keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="never"
+            showsVerticalScrollIndicator={false}
+            ref={ref => this.scrollView = ref}
+            onContentSizeChange={() => {
+              this.scrollView.scrollTo({ y: 0, animated: true });
+             }}
             extraScrollHeight={0}
             >
-             <FlatList 
-             style={styles.messages}
-             data={this.state.messages}
-             renderItem={({item, index}) => <MessageRender message={item}/>}
+             <FlatList
+             data={messages}
+             renderItem={({item, index}) => <MessageRender message={item} currentUser={this.props.currentUser}/>}
              keyExtractor={(item, index) =>  `${index}`}
+             ListEmptyComponent={<Text style={{alignSelf: 'center', color: '#ccc', fontSize: 14, marginTop:20}}> No chat yet :( </Text>}
              />
-              </ScrollView>
+              </InvertibleScrollView>
              <View style={{ backgroundColor: '#fff', flexDirection: 'row', paddingTop: 5}}>
               <TextInput
               placeholder="type message"
@@ -113,14 +74,11 @@ class Message extends Component {
               multiline={true}
               />
 
-              {this.state.message !== '' && <TouchableOpacity style={styles.btn} onPress={() => {
-                alert(`Message: ${this.state.message} - has been sent!`);
-                return this.setState({ message: '' });
-                }}>
+              {this.state.message !== '' && <TouchableOpacity style={styles.btn} onPress={() => this.sendIt(chatDetail.id)}>
               <Icon name="send" color='#238ACC' size={25} style={{alignSelf: 'flex-start'}}/>
               </TouchableOpacity>}
           </View>
-          </View> 
+          </View>
           </KeyboardAvoidingView>
 
     );
@@ -131,13 +89,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 40,
+    marginBottom: 20
   },
   status: {
-    height: 10, 
-    width:10, 
-    backgroundColor: 'grey', 
-    borderRadius: 5, 
-    padding: 5, 
+    height: 10,
+    width:10,
+    backgroundColor: 'grey',
+    borderRadius: 5,
+    padding: 5,
     marginTop: 4
   },
   active: {
@@ -150,8 +109,8 @@ const styles = StyleSheet.create({
   },
   image: {
     marginHorizontal: 10,
-    width: 40, 
-    height: 40, 
+    width: 40,
+    height: 40,
     borderRadius: 20
   },
   input: {
@@ -170,7 +129,8 @@ const styles = StyleSheet.create({
   },
   messages: {
     flex: 1,
-    backgroundColor: '#FFF'
+    // flexDirection: 'column-reverse',
+    backgroundColor: '#fefefe'
   },
   chatHead: {
     backgroundColor: '#efe',
@@ -193,8 +153,8 @@ const styles = StyleSheet.create({
   },
   btn: {
     height: 40,
-    width: 40, 
-    justifyContent: 'center', 
+    width: 40,
+    justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
     marginHorizontal: 2,
@@ -203,4 +163,10 @@ const styles = StyleSheet.create({
 
 });
 
-export default Message;
+const mapStateToProps = (state) => {
+  const { chat } = state.chat;
+  const { currentUser } = state.users;
+  return { chat, currentUser }
+};
+
+export default connect(mapStateToProps)(Message);

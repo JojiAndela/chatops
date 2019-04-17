@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, ActivityIndicator, Platform, AsyncStorage} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, ActivityIndicator, Platform} from 'react-native';
 import styles from './styles';
 import { signUpUser } from '../../store/actions/auth';
+import AsyncStorage from '@react-native-community/async-storage';
+import { getAllChats } from '../../store/actions/chat';
 
 class SignUp extends Component {
   state ={
@@ -13,12 +15,22 @@ class SignUp extends Component {
     passwordConfirm: ''
   }
 
-  async componentDidMount(){
-    const user = await AsyncStorage.getItem('token');
-    if(user){
+  componentDidMount(){
+    const user = this.props.users.currentUser;
+    if(user.token){
+      this.props.dispatch(getAllChats());
       return this.props.navigation.navigate('Main');
     }
   }
+
+  componentWillReceiveProps(nextProps){
+    const user = nextProps.users.currentUser;
+    if(user.token){
+      this.props.dispatch(getAllChats());
+
+      return this.props.navigation.navigate('Main');
+    }
+  } 
 
   signup = () => {
     const { dispatch } = this.props;

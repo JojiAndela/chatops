@@ -1,59 +1,56 @@
-import AsyncStorage from '@react-native-community/async-storage';
-import { GET_ALL_USERS_REQUEST, GET_ALL_USERS_ERROR, GET_ALL_USERS_SUCCESS, AUTH_USER_REQUEST, AUTH_USER_ERROR, AUTH_USER_SUCCESS, LOGOUT_USER } from "../types/users";
+import { GET_ALL_CHATS_REQUEST, GET_ALL_CHATS_ERROR, GET_ALL_CHATS_SUCCESS, GET_CHAT_ERROR, GET_CHAT_REQUEST, GET_CHAT_SUCCESS } from "../types/chats";
 
 const INITIAL_STATE = {
-  allUsers: [],
+  chats: [],
   loading: false,
   error: null,
-  currentUser: {}
+  chat: {}
 };
 
 export default (state = INITIAL_STATE, action) => {
 
   switch (action.type) {
-    case GET_ALL_USERS_REQUEST:
+    case GET_ALL_CHATS_REQUEST:
       return {
         ...state,
         loading: true,
         error: null,
       }
-    case GET_ALL_USERS_ERROR:
+      
+    case GET_ALL_CHATS_ERROR:
       return {
         ...state,
         loading: false,
         error: action.error,
       }
-    case GET_ALL_USERS_SUCCESS:
+
+    case GET_ALL_CHATS_SUCCESS:
       return {
         ...state,
-        allUsers: action.users,
+        chats: action.chats,
         loading: false
       }
-    case AUTH_USER_REQUEST:
+    case GET_CHAT_REQUEST:
       return {
         ...state,
         loading: true,
         error: null,
       }
-    case AUTH_USER_ERROR:
+      
+    case GET_CHAT_ERROR:
       return {
         ...state,
         loading: false,
         error: action.error,
       }
-    case AUTH_USER_SUCCESS:
+
+    case GET_CHAT_SUCCESS:
       return {
         ...state,
-        currentUser: action.user,
+        chat: action.chat,
         loading: false
       }
-    case LOGOUT_USER:
-      return {
-        ...state,
-        currentUser: {},
-        loading: false,
-        error: null
-      }
+
     default:
       return state
   }

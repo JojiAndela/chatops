@@ -18,6 +18,11 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  container: {
+    flex:1,
+    marginTop: 50,
+    width: '100%'
+  },
   head: {
     fontSize: 30,
     color: '#555',
@@ -52,5 +57,19 @@ export default StyleSheet.create({
     color: 'red',
     fontSize: 12,
     alignSelf: 'center',
+  },
+
+  card: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    padding: 15,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#eee'
+  },
+  cardName: {
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 });

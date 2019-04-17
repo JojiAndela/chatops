@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
-import UserRows from './UserRows';
-import { joinChat } from '../../store/actions/chat';
+import UserRows from '../AllUsers/UserRows';
+import { getAllChats, getChat } from '../../store/actions/chat';
 
 
 class AllUsers extends Component {
@@ -11,20 +11,26 @@ state = {
       filter: '',
   }
 
+  componentDidMount(){
+    this.props.dispatch(getAllChats());
+  }
+
   static navigationOptions = {
-    title: 'Users',
+    // title: 'Chats',
   };
 
-  gotoMessage = (id, name) => this.props.dispatch(joinChat(id, this.props.navigation, name))
+  gotoMessage = (item, name) => {
+    this.props.dispatch(getChat(item.id));
+    return this.props.navigation.navigate('Message', { name, chat: item })};
   render() {
-    const users = (this.props.allUsers && this.props.allUsers[0]) && this.props.allUsers.filter(user => {
-      return !this.state.filter || 
-        user.username.toLowerCase().indexOf(this.state.filter.toLowerCase()) > -1
+    const users = (this.props.chats[0] && this.props.chats[0].users) && this.props.chats.filter(user => {
+      return !this.state.filter ||
+        user.users[0].username.toLowerCase().indexOf(this.state.filter.toLowerCase()) > -1
     });
     return (
       <View style={{flex: 1, backgroundColor: '#fff', marginTop: 20}}>
-        <TextInput 
-        style={styles.input} 
+        <TextInput
+        style={styles.input}
         placeholder="Search User"
         onChangeText={
           text => {this.setState({ filter: text });
@@ -32,13 +38,13 @@ state = {
         value={this.state.search}
         />
         <KeyboardAwareScrollView style={{margin: 0, padding: 0}}>
-        {users ? <FlatList 
+        {users ? <FlatList
           style={{margin: 0, padding: 0}}
           data={users}
-          renderItem={({item, index}) => <UserRows user={item} toMessage={() => this.gotoMessage(item.id, item.username)} />}
+          renderItem={({item, index}) => <UserRows user={item.users ? item.users[0] : {}} toMessage={() => this.gotoMessage(item, item.users && item.users[0].username)} />}
           keyExtractor={(item) => item.id}
-          ListEmptyComponent={<Text style={{alignSelf: 'center', color: '#ccc', fontSize: 18, fontWeight: 'bold', marginTop:20}}>No such user found :(</Text>}
-        />: <Text style={{alignSelf: 'center', color: '#ccc', fontSize: 18, fontWeight: 'bold', marginTop:20}}>No user to chat with :( </Text>}
+          ListEmptyComponent={<Text style={{alignSelf: 'center', color: '#ccc', fontSize: 18, fontWeight: 'bold', marginTop:20}}> You don't have such chat :( </Text>}
+        /> : <Text style={{alignSelf: 'center', color: '#ccc', fontSize: 18, fontWeight: 'bold', marginTop:20}}>You have no conversation :(</Text>}
         </KeyboardAwareScrollView>
       </View>
     );
@@ -69,8 +75,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const { allUsers } = state.users;
-  return { allUsers }
+  const { chats } = state.chat;
+  return { chats }
 };
 
 export default connect(mapStateToProps)(AllUsers);

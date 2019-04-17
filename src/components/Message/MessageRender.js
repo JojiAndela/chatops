@@ -1,12 +1,14 @@
 import React from 'react';
+import moment from 'moment';
 import { View, Text, StyleSheet} from 'react-native';
 
 
-const MessageRender = ({ message }) => {
+const MessageRender = ({ message, currentUser }) => {
   return (
-    <View style={message.sender === 1 ? styles.chatHead : styles.chatHead2}>
+    <View style={message.sender.id === currentUser.id ? styles.chatHead : styles.chatHead2}>
       <Text>
-        {message.msg}
+        {message.msg}{' '}
+        <Text style={{ fontSize: 8, alignSelf: "flex-end", color: '#aaa'}}>{ moment(message.createdAt).format('LT')}</Text>
       </Text>
     </View>
   );
@@ -17,7 +19,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#efe',
     padding: 10,
     alignSelf: 'flex-end',
-    margin: 10,
+    margin: 5,
     borderRadius: 5,
     maxWidth: '80%',
     color: '#333',

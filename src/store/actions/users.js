@@ -1,5 +1,5 @@
-import { GET_ALL_USERS_REQUEST, GET_ALL_USERS_ERROR, GET_ALL_USERS_SUCCESS } from "../types/users";
 import Axios from 'axios';
+import { GET_ALL_USERS_REQUEST, GET_ALL_USERS_ERROR, GET_ALL_USERS_SUCCESS } from "../types/users";
 
 const getAllUsersRequest = () => ({
   type: GET_ALL_USERS_REQUEST
@@ -24,7 +24,6 @@ export const getAllUsers = () => dispatch =>  {
 
   return Axios.get('/users')
   .then(({ data }) => {
-    console.log(data.user);
     return dispatch(getAllUsersSuccess(data.users));
   })
   .catch(error => dispatch(getAllUsersError(error)));

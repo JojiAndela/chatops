@@ -1,21 +1,33 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, ActivityIndicator, Platform, AsyncStorage} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, ActivityIndicator, Platform} from 'react-native';
 import styles from './styles';
 import { loginUser } from '../../store/actions/auth';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Login extends Component {
   state ={
     login: '',
     password: '',
+    show: false
   }
 
-  async componentDidMount(){
-    const user = await AsyncStorage.getItem('token');
-    if(user){
+  componentDidMount(){
+    const user = this.props.users.currentUser;
+    if(user.token){
       return this.props.navigation.navigate('Main');
     }
+    return this.setState({ show: true});
   }
+
+  componentWillReceiveProps(nextProps){
+    const user = nextProps.users.currentUser;
+    if(user.token){
+      return this.props.navigation.navigate('Main');
+    }
+    return this.setState({ show: true});
+  }
+
 
   login = () => {
     const { dispatch } = this.props;
@@ -29,10 +41,10 @@ class Login extends Component {
       <KeyboardAvoidingView style={styles.contain} behavior='padding' enabled={Platform.OS === 'ios' ? true : false}>
        {this.props.users.loading && <View style={styles.loader}><ActivityIndicator size={"large"}/></View>}
         <View>
-        <Text style={styles.head}>Log In</Text>
+        {this.state.show && <Text style={styles.head}>Log In</Text>}
         </View>
 
-        <View style={{ width: '90%'}}>
+        {this.state.show && <View style={{ width: '90%'}}>
         <View style={styles.sec}>
           <TextInput 
               value={this.state.login}
@@ -53,12 +65,12 @@ class Login extends Component {
 
         
           <TouchableOpacity style={styles.btn} onPress={this.login}><Text style={styles.btntext}>Log In</Text></TouchableOpacity>
-        </View>
+        </View>}
 
 
-        <View style={{marginTop: 20}}>
+        {this.state.show && <View style={{marginTop: 20}}>
         <TouchableOpacity onPress={() => this.props.navigation.navigate('SignUp')}><Text>New here? <Text style={{fontWeight: 'bold'}}>Sign Up</Text></Text></TouchableOpacity>
-        </View>
+        </View>}
       </KeyboardAvoidingView>
     );
   }
