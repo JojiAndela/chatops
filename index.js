@@ -1,6 +1,4 @@
-/**
- * @format
- */
+
 
 import {AppRegistry} from 'react-native';
 import App from './App';
@@ -12,4 +10,4 @@ initApp(store);
 
 
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => x);
